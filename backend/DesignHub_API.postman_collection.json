@@ -1,0 +1,646 @@
+{
+  "info": {
+    "name": "DesignHub API",
+    "description": "Complete API collection for DesignHub backend. Import this into Postman to test all endpoints.\n\n**Quick Start:**\n1. Import this file into Postman\n2. Set environment variable `{{base_url}}` = http://localhost:5000/api\n3. Run 'Register' or 'Login' to get token\n4. Token is auto-saved to `{{token}}` variable\n5. All protected routes use `{{token}}` automatically\n\n**Environment Variables:**\n- `base_url`: http://localhost:5000/api\n- `token`: Auto-set after login/register\n- `design_id`: Auto-set after creating design\n- `comment_id`: Auto-set after creating comment",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Check API Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Test if the backend API is running. No authentication required."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "url": "{{base_url}}/health"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"DesignHub API is running! 🚀\",\n  \"environment\": \"development\",\n  \"timestamp\": \"2026-02-10T19:30:00.000Z\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register New User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Auto-save token to environment",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('token', response.token);",
+                  "    console.log('✅ Token saved:', response.token.substring(0, 20) + '...');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"john_doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"SecurePass123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Register a new user account.\n\n**Validation Rules:**\n- Username: 3-20 characters, alphanumeric only\n- Email: Valid email format\n- Password: Minimum 8 characters, must contain letter and number\n\n**Rate Limit:** 5 requests per 15 minutes"
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Auto-save token to environment",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('token', response.token);",
+                  "    console.log('✅ Token saved:', response.token.substring(0, 20) + '...');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"SecurePass123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login with existing credentials.\n\n**Rate Limit:** 5 requests per 15 minutes\n**Important:** Token is automatically saved to `{{token}}` variable"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "me"]
+            },
+            "description": "Get currently logged in user's data.\n\n**Requires:** Valid JWT token in Authorization header"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Designs",
+      "item": [
+        {
+          "name": "Get All Designs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/designs?page=1&limit=20&sort=popular",
+              "host": ["{{base_url}}"],
+              "path": ["designs"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Items per page (max: 100, default: 20)"
+                },
+                {
+                  "key": "sort",
+                  "value": "popular",
+                  "description": "Sort by: newest, oldest, popular, trending"
+                },
+                {
+                  "key": "category",
+                  "value": "UI/UX",
+                  "description": "Filter by category",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "dashboard",
+                  "description": "Search in title/description",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get paginated list of all designs. Public endpoint (no auth required)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Design",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/designs/{{design_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["designs", "{{design_id}}"]
+            },
+            "description": "Get single design by ID. Public endpoint.\n\n**Note:** Replace `{{design_id}}` with actual MongoDB ObjectId"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Design",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Auto-save design_id to environment",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('design_id', response.data._id);",
+                  "    console.log('✅ Design ID saved:', response.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Modern Dashboard UI\",\n  \"description\": \"Clean and minimal dashboard design with dark mode support\",\n  \"imageUrl\": \"https://res.cloudinary.com/designhub/image/upload/v1234567890/designs/dashboard.jpg\",\n  \"thumbnailUrl\": \"https://res.cloudinary.com/designhub/image/upload/w_400,h_300/v1234567890/designs/dashboard.jpg\",\n  \"cloudinaryId\": \"designhub/designs/dashboard_abc123\",\n  \"category\": \"UI/UX\",\n  \"tags\": [\"dashboard\", \"minimal\", \"modern\", \"dark-mode\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/designs",
+              "host": ["{{base_url}}"],
+              "path": ["designs"]
+            },
+            "description": "Create a new design.\n\n**Requires:** Authentication\n**Important:** Upload image first using 'Upload Image' endpoint, then use returned URLs\n\n**Validation:**\n- Title: 3-100 characters\n- Description: Max 500 characters\n- Tags: Max 10 tags, each max 20 characters\n- Image URL: Valid URL format\n\n**Rate Limit:** 20 uploads per hour"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Design",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Title\",\n  \"description\": \"Updated description\",\n  \"tags\": [\"updated\", \"tags\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/designs/{{design_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["designs", "{{design_id}}"]
+            },
+            "description": "Update your own design. All fields are optional.\n\n**Requires:** Authentication + Ownership\n**Important:** Only the design creator can update"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Design",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/designs/{{design_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["designs", "{{design_id}}"]
+            },
+            "description": "Delete your own design.\n\n**Requires:** Authentication + Ownership\n**Important:** Also deletes image from Cloudinary and all comments"
+          },
+          "response": []
+        },
+        {
+          "name": "Like/Unlike Design",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/designs/{{design_id}}/like",
+              "host": ["{{base_url}}"],
+              "path": ["designs", "{{design_id}}", "like"]
+            },
+            "description": "Toggle like on a design. If already liked, removes like. If not liked, adds like.\n\n**Requires:** Authentication\n**Returns:** `{ liked: true/false, likesCount: number }`"
+          },
+          "response": []
+        },
+        {
+          "name": "Save/Unsave Design",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/designs/{{design_id}}/save",
+              "host": ["{{base_url}}"],
+              "path": ["designs", "{{design_id}}", "save"]
+            },
+            "description": "Toggle save on a design (add to user's saved collection).\n\n**Requires:** Authentication\n**Returns:** `{ saved: true/false, savesCount: number }`"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Comments",
+      "item": [
+        {
+          "name": "Get Comments for Design",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/designs/{{design_id}}/comments",
+              "host": ["{{base_url}}"],
+              "path": ["designs", "{{design_id}}", "comments"]
+            },
+            "description": "Get all comments for a design including nested replies.\n\n**Public Endpoint:** No authentication required\n**Returns:** Hierarchical comment structure with replies"
+          },
+          "response": []
+        },
+        {
+          "name": "Add Comment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Auto-save comment_id to environment",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('comment_id', response.data._id);",
+                  "    console.log('✅ Comment ID saved:', response.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"This is an amazing design! Love the color scheme and typography.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/designs/{{design_id}}/comments",
+              "host": ["{{base_url}}"],
+              "path": ["designs", "{{design_id}}", "comments"]
+            },
+            "description": "Add a comment to a design.\n\n**Requires:** Authentication\n**Validation:** Content must be 1-500 characters\n**Rate Limit:** 30 comments per hour"
+          },
+          "response": []
+        },
+        {
+          "name": "Add Reply to Comment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Thank you so much! Glad you liked it.\",\n  \"parentId\": \"{{comment_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/designs/{{design_id}}/comments",
+              "host": ["{{base_url}}"],
+              "path": ["designs", "{{design_id}}", "comments"]
+            },
+            "description": "Reply to an existing comment.\n\n**Requires:** Authentication\n**Important:** Include `parentId` of the comment you're replying to\n**Rate Limit:** 30 comments per hour"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Comment",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Updated comment text here\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/comments/{{comment_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["comments", "{{comment_id}}"]
+            },
+            "description": "Update your own comment.\n\n**Requires:** Authentication + Ownership"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Comment",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/comments/{{comment_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["comments", "{{comment_id}}"]
+            },
+            "description": "Delete your own comment.\n\n**Requires:** Authentication + Ownership\n**Important:** Also deletes all replies to this comment"
+          },
+          "response": []
+        },
+        {
+          "name": "Like/Unlike Comment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/comments/{{comment_id}}/like",
+              "host": ["{{base_url}}"],
+              "path": ["comments", "{{comment_id}}", "like"]
+            },
+            "description": "Toggle like on a comment.\n\n**Requires:** Authentication\n**Returns:** `{ liked: true/false, likesCount: number }`"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Upload",
+      "item": [
+        {
+          "name": "Upload Image",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": [],
+                  "description": "Select image file (JPG, PNG, GIF, WebP)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/upload/image",
+              "host": ["{{base_url}}"],
+              "path": ["upload", "image"]
+            },
+            "description": "Upload image to Cloudinary.\n\n**Requires:** Authentication\n**File Requirements:**\n- Max size: 5MB\n- Formats: JPG, PNG, GIF, WebP\n- Returns: imageUrl, thumbnailUrl, cloudinaryId\n\n**Rate Limit:** 20 uploads per hour\n\n**Important:** Use returned URLs when creating design"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Rate Limit Testing",
+      "item": [
+        {
+          "name": "Test Auth Rate Limit (Run 6 times)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"wrong@example.com\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Test auth rate limiter.\n\n**Instructions:**\n1. Click 'Send' 6 times rapidly\n2. First 5 requests: 401 Unauthorized (wrong credentials)\n3. 6th request: 429 Too Many Requests (rate limited)\n\n**Rate Limit:** 5 requests per 15 minutes\n**Headers to check:** RateLimit-Remaining, Retry-After"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global pre-request script",
+          "console.log('📤 Request:', pm.request.method, pm.request.url.toString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test script",
+          "const status = pm.response.code;",
+          "const statusText = pm.response.status;",
+          "",
+          "if (status >= 200 && status < 300) {",
+          "    console.log('✅', status, statusText);",
+          "} else if (status >= 400) {",
+          "    console.log('❌', status, statusText);",
+          "    const response = pm.response.json();",
+          "    console.log('Error:', response.message);",
+          "}",
+          "",
+          "// Log rate limit headers",
+          "const remaining = pm.response.headers.get('RateLimit-Remaining');",
+          "if (remaining !== null) {",
+          "    console.log('⏱️ Rate Limit Remaining:', remaining);",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "design_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "comment_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

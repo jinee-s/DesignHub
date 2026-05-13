@@ -1,0 +1,86 @@
+services:
+  # DesignHub Backend API
+  - type: web
+    name: designhub-api
+    env: node
+    region: oregon    # or: oregon, ohio, virginia, frankfurt, singapore, sydney
+    
+    # Build configuration
+    buildCommand: npm install
+    startCommand: npm start
+    
+    # Environment variables for backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+      
+      - key: PORT
+        value: 5000
+      
+      # MongoDB Atlas URI - Set in Render dashboard
+      - key: MONGO_URI
+        fromDatabase:
+          name: designhub-db
+          property: connectionString
+      
+      # JWT Secret - Must be set in Render dashboard
+      - key: JWT_SECRET
+        isPrivate: true
+      
+      - key: JWT_EXPIRE
+        value: 7d
+      
+      # Cloudinary credentials - Set in Render dashboard  
+      - key: CLOUDINARY_CLOUD_NAME
+        isPrivate: true
+      
+      - key: CLOUDINARY_API_KEY
+        isPrivate: true
+      
+      - key: CLOUDINARY_API_SECRET
+        isPrivate: true
+      
+      # CORS - Set frontend URL
+      - key: CORS_ORIGINS
+        value: https://designhub.vercel.app,https://www.designhub.vercel.app
+      
+      - key: CORS_CREDENTIALS
+        value: "true"
+      
+      # Rate limiting configuration
+      - key: RATE_LIMIT_WINDOW_MS
+        value: "900000"
+      
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: "100"
+      
+      - key: AUTH_RATE_LIMIT_WINDOW_MS
+        value: "900000"
+      
+      - key: AUTH_RATE_LIMIT_MAX_REQUESTS
+        value: "5"
+      
+      - key: UPLOAD_RATE_LIMIT_WINDOW_MS
+        value: "3600000"
+      
+      - key: UPLOAD_RATE_LIMIT_MAX_REQUESTS
+        value: "20"
+      
+      - key: COMMENT_RATE_LIMIT_WINDOW_MS
+        value: "3600000"
+      
+      - key: COMMENT_RATE_LIMIT_MAX_REQUESTS
+        value: "30"
+    
+    # Health check
+    healthCheckPath: /api/health
+
+# PostgreSQL database (optional - using MongoDB Atlas instead)
+# databases:
+#   - name: designhub-db
+#     ipAllowList: []
+
+# For MongoDB Atlas:
+# 1. Go to Render Dashboard > Databases
+# 2. Create MongoDB with MongoDB Atlas
+# 3. Set connection string to MONGO_URI env var
