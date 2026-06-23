@@ -1,4 +1,4 @@
-# CreativeHub — A Dribbble-Inspired Design Showcase Platform
+# DesignVerse
 
 Full-stack portfolio platform built with **React 18**, **Vite 7**, **TypeScript**, **Node.js**, **Express**, **MongoDB**, and **Tailwind CSS**. Features authentication, image uploads (Cloudinary), design showcase, user profiles, and real-time interactions.
 
